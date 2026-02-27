@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>G-MEY POETRA PREMIUM V33 FINAL</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<style>
+:root {
+    --primary: #00d2ff;
+    --gold-muted: #c5a059;
+    --danger-deep: #b33939; /* Warna merah untuk tombol danger */
+    --success-deep: #218c74;
+    --text-soft: #d1d8e0;
+    --text-muted: #84817a;
+    --topbar-bg: #0d1117;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family: 'Segoe UI', sans-serif;}
+body{
+    background: radial-gradient(circle at center, #2c3e50 0%, #000000 100%);
+    color: var(--text-soft);
+    overflow: hidden; height: 100vh; width: 100vw;
+}
+
+.app-container { height: 100vh; display: flex; flex-direction: column; }
+.topbar{
+    height: 60px; background: var(--topbar-bg);
+    display: flex; align-items: center; padding: 0 20px;
+    border-bottom: 1px solid var(--gold-muted);
+    z-index: 2001; box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    justify-content: space-between;
+}
+
+.status-online {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; color: #2ecc71; letter-spacing: 1px; font-weight: bold;
+    background: rgba(46, 204, 113, 0.1);
+    padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.2);
+}
+.dot { height: 6px; width: 6px; background-color: #2ecc71; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #2ecc71; }
+
+.sidebar{
+    position:fixed; top:60px; left:-210px; width:130px; 
+    height: auto; /* Mengikuti tinggi konten */
+    background: rgba(10, 15, 20, 0.98);
+    backdrop-filter: blur(20px); 
+    padding: 20px 10px; /* Padding disesuaikan */
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    z-index: 2000; border-radius: 0 0 20px 0;
+    border-right: 1px solid var(--gold-muted); border-bottom: 1px solid var(--gold-muted);
+}
+.sidebar.active{left:0;}
+.sidebar button{
+    width:100%; 
+    padding: 15px 10px; /* Padding tombol disesuaikan */
+    margin-bottom: 15px; /* Jarak antar tombol disesuaikan */
+    border:none; border-radius:8px;
+    background: transparent; 
+    color: var(--gold-muted); /* Warna emas untuk menu */
+    text-align:left; font-size:13px; cursor:pointer; 
+    border-bottom: 1px solid var(--glass-border);
+}
+/* Logout tetap merah */
+.sidebar button:last-child {
+    color: var(--danger-deep);
+    margin-bottom: 0; /* Menghilangkan margin bawah tombol terakhir */
+}
+
+.content{ 
+    flex: 1; display: flex; flex-direction: column;
+    padding: 10px; transition: 0.3s; padding-bottom: 45px; 
+    overflow: hidden;
+}
+.blur-bg { filter: blur(10px); opacity: 0.4; }
+
+/* KONTAINER UTAMA FULL LAYAR */
+.card-elegan {
+    background: var(--glass-bg); backdrop-filter: blur(25px);
+    padding: 15px; border-radius: 15px;
+    border: 1px solid var(--gold-muted);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.stats-grid-unit {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 10px;
+    flex: 1;
+    margin-bottom: 10px;
+}
+
+.stat-card-unit {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    border-radius: 12px; border: 1.5px solid var(--glass-border); background: rgba(0,0,0,0.2);
+}
+.stat-card-unit p { font-size: 20px; font-weight: bold; }
+.stat-card-unit div { font-size: 8px; opacity: 0.6; }
+
+.unit-isi { border-color: var(--success-deep) !important; color: var(--success-deep) !important; }
+.unit-kosong { border-color: var(--gold-muted) !important; color: var(--gold-muted) !important; opacity: 0.6; }
+
+/* TEXT & INPUT PERBESAR */
+input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--gold-muted); background: rgba(0,0,0,0.3); color: #fff; outline: none; font-size: 14px; margin-bottom: 8px; }
+.img-box { border-radius: 8px; overflow: hidden; height: 100px; width: 100%; border: 1px solid var(--glass-border); margin-bottom: 5px; }
+img.preview { width: 100%; height: 100%; object-fit: cover; }
+.img-label { font-size: 10px; color: var(--gold-muted); letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 2px; }
+
+.btn-3d {
+    background: var(--gold-muted); color: #000; font-weight: bold; border: none; width: 100%; padding: 12px; 
+    border-radius: 8px; cursor: pointer; font-size: 14px; margin-top: 5px;
+}
+
+.watermark { 
+    position: fixed; bottom: 10px; width: 100%; text-align: center; 
+    font-size: 10px; color: rgba(255, 255, 255, 0.2); 
+    letter-spacing: 10px; pointer-events: none; font-weight: 800;
+}
+.hidden { display: none !important; }
+#displayArea { height: 100%; flex: 1; display: flex; flex-direction: column; }
+
+/* Scrollbar Style */
+#listTerisi::-webkit-scrollbar, #detHist::-webkit-scrollbar { width: 5px; }
+#listTerisi::-webkit-scrollbar-thumb, #detHist::-webkit-scrollbar-thumb { background: var(--gold-muted); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="padding: 150px 40px; text-align: center;">
+    <h2 style="color: var(--gold-muted); letter-spacing: 5px; font-weight: 300; margin-bottom: 20px;">G-MEY POETRA</h2>
+    <input type="password" id="pass" placeholder="PIN" style="text-align:center; letter-spacing:10px; max-width: 250px;">
+    <button class="btn-3d" onclick="login()" style="max-width: 250px; display: block; margin: 20px auto;">ENTER</button>
+</div>
+
+<div id="mainApp" class="app-container" style="display:none;">
+    <div class="topbar">
+        <div onclick="toggleSidebar(event)" style="font-size:24px; color:var(--gold-muted); cursor:pointer;">☰</div>
+        <div style="font-size:11px; letter-spacing:3px; color:var(--text-soft);">G-MEY SYSTEM</div>
+        <div class="status-online"><span class="dot"></span> ON</div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <button onclick="showDashboard()">Dashboard</button>
+        <button onclick="openFolder()">Kamar</button>
+        <button onclick="showHistory()">Riwayat</button>
+        <button onclick="location.reload()">Logout</button>
+    </div>
+
+    <div class="content" id="mainContent" onclick="closeSidebar()">
+        <div id="dashView" style="flex:1; display:flex; flex-direction:column; overflow: hidden;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; flex-shrink: 0;">
+                <div class="card-elegan" style="text-align:center; flex:none; padding:10px;">
+                    <div style="font-size:9px; color:var(--gold-muted);">TERISI</div>
+                    <p id="t1" style="font-size:22px;">0</p>
+                </div>
+                <div class="card-elegan" style="text-align:center; flex:none; padding:10px;">
+                    <div style="font-size:9px; color:var(--gold-muted);">KOSONG</div>
+                    <p id="t2" style="font-size:22px;">16</p>
+                </div>
+            </div>
+            
+            <div class="card-elegan" style="justify-content:flex-start; overflow: hidden; display: flex; flex-direction: column;">
+                <h4 style="font-size:12px; color:var(--gold-muted); text-align:center; margin-bottom:10px; flex-shrink: 0;">PENGHUNI AKTIF</h4>
+                <div id="listTerisi" style="overflow-y:auto; flex:1; padding-right: 5px;"></div>
+            </div>
+        </div>
+        <div id="displayArea" class="hidden"></div>
+    </div>
+    <div class="watermark">G-MEY POETRA</div>
+</div>
+
+<div id="imageViewer" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:3000; display:none; flex-direction:column;">
+    <div style="padding:20px; text-align:right;"><span onclick="closeViewer()" style="font-size:35px; color:var(--gold-muted);">&times;</span></div>
+    <div id="zoomArea" style="flex:1; display:flex; justify-content:center; align-items:center;"><img id="fullImage" style="max-width:100%;"></div>
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("gm9_data")) || {};
+let history = JSON.parse(localStorage.getItem("gm9_hist")) || [];
+
+// --- KONFIGURASI PIN ---
+const PIN_LOGIN = "123";
+const PIN_HAPUS = "321";
+
+const formatTgl = (t) => { if(!t) return "-"; const [y,m,d] = t.split('-'); return `${d}/${m}/${y}`; };
+
+function login() {
+    if(document.getElementById("pass").value === PIN_LOGIN) {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("mainApp").style.display = "flex";
+        showDashboard();
+    } else { alert("PIN Login Salah!"); }
+}
+
+function toggleSidebar(e) {
+    e.stopPropagation();
+    document.getElementById("sidebar").classList.toggle("active");
+    document.getElementById("mainContent").classList.toggle("blur-bg");
+}
+
+function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("active");
+    document.getElementById("mainContent").classList.remove("blur-bg");
+}
+
+function render(h) {
+    let a = document.getElementById("displayArea"); a.innerHTML = h;
+    document.getElementById("dashView").classList.add("hidden"); a.classList.remove("hidden");
+}
+
+function showDashboard() {
+    closeSidebar();
+    document.getElementById("dashView").classList.remove("hidden");
+    document.getElementById("displayArea").classList.add("hidden");
+    let terisiArr = Object.entries(data).sort((a,b) => a[0] - b[0]);
+    document.getElementById("t1").innerText = terisiArr.length;
+    document.getElementById("t2").innerText = 16 - terisiArr.length;
+
+    let listHTML = "";
+    if(terisiArr.length === 0) {
+        listHTML = `<p style="text-align:center; font-size:12px; opacity:0.3; margin-top:20px;">Kosong</p>`;
+    } else {
+        terisiArr.forEach(([no, d]) => {
+            // Nama hijau
+            listHTML += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;" onclick="detail(${no})">
+                <div><b style="color:var(--gold-muted); font-size:14px;">Kamar ${no}</b><br><span style="font-size:13px; color:var(--success-deep); font-weight:bold;">${d.nama}</span></div>
+                <div style="color:var(--gold-muted); font-size:11px; align-self:center;">DETAIL ➔</div>
+            </div>`;
+        });
+    }
+    document.getElementById("listTerisi").innerHTML = listHTML;
+}
+
+function openFolder() {
+    closeSidebar();
+    let h = `<div class="stats-grid-unit">`; 
+    for(let i=1; i<=16; i++) {
+        let sClass = data[i] ? "unit-isi" : "unit-kosong";
+        h += `<div class="stat-card-unit ${sClass}" onclick="detail(${i})">
+                <div>KAMAR</div><p style="font-size:22px;">${i}</p>
+              </div>`;
+    }
+    h += `</div><button class="btn-3d" style="background:transparent; border:1px solid #333; color:var(--text-muted); height:45px;" onclick="showDashboard()">KEMBALI</button>`;
+    render(h);
+}
+
+function detail(no) {
+    let d = data[no];
+    let h = `<div class="card-elegan" style="display:flex; flex-direction:column; flex:1; justify-content:space-between;">
+        <div style="flex-grow:1; display:flex; flex-direction:column; align-items:center; text-align:center; overflow-y:auto; padding-right:5px;">
+            <h3 style="color:var(--gold-muted); margin-bottom:15px; font-weight:300; font-size:20px;">KAMAR ${no}</h3>
+            ${d ? `
+                <div style="margin-bottom:15px; width:100%;">
+                    <small class="img-label">NAMA</small>
+                    <p style="color:var(--gold-muted); font-size:18px; font-weight:bold;">${d.nama}</p>
+                </div>
+                <div style="margin-bottom:15px; width:100%; display:flex; justify-content:space-around; gap:10px;">
+                    <div style="flex:1;"><small class="img-label">STATUS</small><p style="font-size:14px;">${d.status}</p></div>
+                    <div style="flex:1;"><small class="img-label">MASUK</small><p style="font-size:14px;">${formatTgl(d.masuk)}</p></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                    <div><span class="img-label">KTP</span><div class="img-box" style="height:120px;"><img src="${d.ktp}" class="preview" onclick="openViewer(this.src)"></div></div>
+                    <div><span class="img-label">KK</span><div class="img-box" style="height:120px;"><img src="${d.akta}" class="preview" onclick="openViewer(this.src)"></div></div>
+                </div>
+            ` : `
+                <input type="text" id="iNama" placeholder="NAMA LENGKAP" style="text-align:center;">
+                <select id="iStatus" style="text-align:center;"><option value="" disabled selected>STATUS</option><option>Lajang</option><option>Menikah</option><option>Keluarga</option></select>
+                <input type="date" id="iMasuk" style="text-align:center;">
+                <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                    <div><span class="img-label">FOTO KTP</span><input type="file" id="iKtp" accept="image/*"></div>
+                    <div><span class="img-label">FOTO KK</span><input type="file" id="iAkta" accept="image/*"></div>
+                </div>
+            `}
+        </div>
+        <div style="margin-top:auto; padding-top:10px; flex-shrink:0;">
+            ${d ? `<button class="btn-3d" style="background:#b33939; color:#fff; margin-bottom:8px;" onclick="checkout(${no})">CHECKOUT</button>` : `<button class="btn-3d" id="btnSave" onclick="simpan(${no})">SIMPAN DATA</button>`}
+            <button class="btn-3d" style="background:transparent; border:1px solid #333; color:var(--text-muted);" onclick="openFolder()">KEMBALI</button>
+        </div>
+    </div>`;
+    render(h);
+}
+
+async function compressImg(file) {
+    return new Promise((res) => {
+        if (!file) return res("");
+        const reader = new FileReader(); reader.readAsDataURL(file);
+        reader.onload = (e) => {
+            const img = new Image(); img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const w = 400; canvas.width = w;
+                canvas.height = img.height * (w / img.width);
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                res(canvas.toDataURL('image/jpeg', 0.4)); 
+            };
+        };
+    });
+}
+
+async function simpan(no) {
+    const btn = document.getElementById("btnSave");
+    btn.innerText = "PROSES..."; btn.disabled = true;
+    const ktpImg = await compressImg(document.getElementById("iKtp").files[0]);
+    const aktaImg = await compressImg(document.getElementById("iAkta").files[0]);
+    data[no] = { nama: document.getElementById("iNama").value, status: document.getElementById("iStatus").value, masuk: document.getElementById("iMasuk").value, ktp: ktpImg, akta: aktaImg };
+    localStorage.setItem("gm9_data", JSON.stringify(data));
+    showDashboard();
+}
+
+function checkout(no) {
+    if(confirm("Checkout kamar ini?")) {
+        const d = new Date(); const t = `${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}`;
+        history.unshift({...data[no], unit: no, keluar: t});
+        delete data[no];
+        localStorage.setItem("gm9_data", JSON.stringify(data));
+        localStorage.setItem("gm9_hist", JSON.stringify(history));
+        showDashboard();
+    }
+}
+
+function showHistory() {
+    closeSidebar();
+    let h = `<h3 style="color:var(--gold-muted); margin-bottom:10px; font-weight:300; font-size:18px;">RIWAYAT</h3>`;
+    h += `<div id="detHist" style="flex:1; overflow-y:auto; margin-bottom:10px; padding-right:5px;">` + (history.map((item, i) => {
+        // Teks Merah
+        let textColor = "#e74c3c";
+        
+        return `
+        <div class="card-elegan" onclick="detHist(${i})" style="padding:12px; margin-bottom:10px; flex:none; display:flex; justify-content:space-between; align-items:center;">
+            
+            <div style="text-align:center; flex:1;">
+                <b style="color:${textColor}; font-size:14px; display:block;">Kamar ${item.unit}</b>
+                <span style="color:${textColor}; font-size:13px; display:block; margin-top:2px;">${item.nama}</span>
+                <p style="font-size:11px; color:var(--text-muted); margin-top:5px;">Keluar: ${item.keluar}</p>
+            </div>
+            
+            <div style="color:var(--gold-muted); font-size:11px; font-weight:bold; flex-shrink:0; margin-left:10px;">LIHAT ➔</div>
+        </div>
+    `}).join('') || "<p style='text-align:center; font-size:12px; opacity:0.3; margin-top:50px;'>Kosong</p>") + `</div>`;
+    h += `<button class="btn-3d" style="background:transparent; border:1px solid #333; color:var(--text-muted);" onclick="showDashboard()">KEMBALI</button>`;
+    render(h);
+}
+
+function detHist(i) {
+    let d = history[i];
+    // Teks Merah
+    let unitColor = "#e74c3c";
+    
+    let h = `<div class="card-elegan">
+        <div style="overflow-y:auto; flex:1; padding-right:5px;">
+            <h3 style="color:${unitColor}; margin-bottom:10px; font-size:18px;">ARSIP KAMAR ${d.unit}</h3>
+            <p style="font-size:14px;"><small class="img-label">NAMA</small> ${d.nama}</p>
+            <p style="font-size:14px; margin-bottom:10px;"><small class="img-label">KELUAR</small> ${d.keluar}</p>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <div class="img-box" style="height:150px;"><img src="${d.ktp}" class="preview" onclick="openViewer(this.src)"></div>
+                <div class="img-box" style="height:150px;"><img src="${d.akta}" class="preview" onclick="openViewer(this.src)"></div>
+            </div>
+        </div>
+        <div style="margin-top:15px; flex-shrink:0;">
+            <button class="btn-3d" style="background:#b33939; color:#fff; margin-bottom:8px;" onclick="hapusRiwayat(${i})">HAPUS DATA</button>
+            <button class="btn-3d" style="background:transparent; border:1px solid #333; color:var(--text-muted);" onclick="showHistory()">KEMBALI</button>
+        </div>
+    </div>`;
+    render(h);
+}
+
+function hapusRiwayat(i) {
+    let pin = prompt("Masukkan PIN HAPUS untuk menghapus data:");
+    if(pin === PIN_HAPUS) {
+        history.splice(i, 1);
+        localStorage.setItem("gm9_hist", JSON.stringify(history));
+        showHistory();
+    } else {
+        alert("PIN Hapus Salah!");
+    }
+}
+
+// --- OPTIMASI ZOOM & GESER ---
+const imgV = document.getElementById("fullImage"), zA = document.getElementById("zoomArea");
+let mc = new Hammer(zA); 
+mc.get('pinch').set({ enable: true });
+mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+
+let sc = 1, cX = 0, cY = 0, lS = 1, lX = 0, lY = 0;
+
+function openViewer(src) { 
+    if(!src) return; 
+    imgV.src = src; 
+    sc = 1; cX = 0; cY = 0; lS = 1; lX = 0; lY = 0; 
+    up(); // Reset posisi
+    document.getElementById("imageViewer").style.display = "flex"; 
+}
+function closeViewer() { document.getElementById("imageViewer").style.display = "none"; }
+
+mc.on("pinchmove", (e) => { sc = Math.max(1, Math.min(e.scale * lS, 4)); up(); });
+mc.on("pinchend", () => { lS = sc; });
+mc.on("panmove", (e) => { if (sc > 1) { cX = lX + e.deltaX; cY = lY + e.deltaY; up(); } });
+mc.on("panend", () => { lX = cX; lY = cY; });
+
+function up() { imgV.style.transform = `translate3d(${cX}px, ${cY}px, 0) scale(${sc})`; }
+</script>
+</body>
+</html>
